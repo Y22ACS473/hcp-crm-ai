@@ -35,6 +35,7 @@ This project implements a mini CRM focused on healthcare professionals (HCPs), w
 - `PUT /edit-interaction/{interaction_id}`
 - `GET /interactions`
 - `POST /agent/chat`
+- `POST /ai/summarize-transcript` — summarize a pasted voice-note transcript into “Topics discussed” (does not save a row by itself)
 
 ## Run Instructions
 
@@ -96,6 +97,7 @@ API docs: `http://localhost:8000/docs` · UI: `http://localhost:5173`
 
 ## Troubleshooting
 
+- **HTTP 404 on `http://localhost:5173`:** Something else is often using port 5173, so Vite may be on another port (check the terminal for `Local: http://127.0.0.1:…`). Either use the URL Vite prints, or free 5173 (PowerShell: `Get-NetTCPConnection -LocalPort 5173 | Select-Object OwningProcess` then stop that PID in Task Manager), then run `npm run dev` again from `frontend`. This project uses `strictPort: true` so the dev server will error clearly if 5173 is taken. Alternate port: `npm run dev:5180` from `frontend`.
 - **DB connection refused:** Docker Desktop running? `docker compose up -d` and `docker ps`.  
 - **Groq / LLM errors:** Fix `GROQ_API_KEY` and `GROQ_MODEL`, restart backend.  
-- **Chat or API fails:** Backend must be on port `8000`, frontend on `5173`.
+- **Chat or API fails:** Backend must be on port `8000`; frontend URL is whatever Vite prints (default `http://127.0.0.1:5173`).
