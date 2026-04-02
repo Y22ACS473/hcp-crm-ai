@@ -5,29 +5,42 @@ import { fetchInteractions } from "../features/interactionsSlice";
 
 function InteractionList() {
   const dispatch = useDispatch();
-  const { items, loading } = useSelector((state) => state.interactions);
+  const { items, loading, error } = useSelector((state) => state.interactions);
 
   useEffect(() => {
     dispatch(fetchInteractions());
   }, [dispatch]);
 
   return (
-    <div className="card">
-      <h2>Interaction List</h2>
-      {loading && <p>Loading...</p>}
-      {!loading && items.length === 0 && <p>No interactions found.</p>}
-      <ul>
+    <section className="panel panel--full">
+      <div className="panel__head">
+        <h2 className="panel__title">Recent interactions</h2>
+      </div>
+      {error && (
+        <p className="interaction-list__error" role="alert">
+          Could not reach the API ({error}). Start the backend with{" "}
+          <code>uvicorn app.main:app --reload --port 8000</code> from the <code>backend</code> folder, then refresh.
+        </p>
+      )}
+      {loading && <p className="muted">Loading…</p>}
+      {!loading && !error && items.length === 0 && <p className="muted">No interactions logged yet.</p>}
+      <ul className="interaction-table">
         {items.map((item) => (
-          <li key={item.id} className="listItem">
-            <strong>{item.doctor_name}</strong> - {item.interaction_type} - {new Date(item.interaction_at).toLocaleString()}
-            <div>Topic: {item.topic || "-"}</div>
-            <div>Products: {item.products_discussed || "-"}</div>
-            <div>Follow-up: {item.follow_up_actions || "-"}</div>
-            <div>Notes: {item.notes}</div>
+          <li key={item.id} className="interaction-row">
+            <div className="interaction-row__main">
+              <strong>{item.doctor_name}</strong>
+              <span className="badge">{item.interaction_type}</span>
+              <span className="muted">{new Date(item.interaction_at).toLocaleString()}</span>
+            </div>
+            {item.topics_discussed && <p className="interaction-row__topics">{item.topics_discussed}</p>}
+            <div className="interaction-row__meta">
+              {item.sentiment && <span>Sentiment: {item.sentiment}</span>}
+              {item.follow_up_actions && <span>Follow-up: {item.follow_up_actions}</span>}
+            </div>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 

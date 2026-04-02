@@ -37,6 +37,12 @@ class ExtractInteraction(BaseModel):
     products_discussed: str = Field(default="")
     follow_up_actions: str = Field(default="")
     interaction_at_iso: Optional[str] = None
+    attendees: str = Field(default="")
+    topics_discussed: str = Field(default="")
+    materials_shared: str = Field(default="")
+    samples_distributed: str = Field(default="")
+    sentiment: str = Field(default="neutral")
+    outcomes: str = Field(default="")
 
 
 class AgentState(TypedDict):
@@ -70,22 +76,36 @@ def build_agent(db: Session):
                 SystemMessage(
                     content=(
                         "Extract HCP interaction details from text. "
-                        "Use visit/call for interaction_type. "
+                        "Use visit, call, or meeting for interaction_type when implied. "
+                        "sentiment must be one of: positive, neutral, negative. "
                         "Keep concise and factual."
                     )
                 ),
                 HumanMessage(content=message),
             ]
         )
+        itype = extracted.interaction_type.lower()
+        if itype not in ("visit", "call", "meeting"):
+            itype = "visit"
+        sent = extracted.sentiment.lower() if extracted.sentiment else "neutral"
+        if sent not in ("positive", "neutral", "negative"):
+            sent = "neutral"
+        topics = extracted.topics_discussed or extracted.topic or ""
         payload = schemas.InteractionCreate(
             doctor_name=extracted.doctor_name,
             interaction_at=_parse_datetime(extracted.interaction_at_iso),
-            interaction_type=extracted.interaction_type.lower(),
+            interaction_type=itype,
             notes=extracted.notes or message,
             products_discussed=extracted.products_discussed,
             follow_up_actions=extracted.follow_up_actions,
-            topic=extracted.topic,
-            intent=extracted.intent,
+            topic=extracted.topic or None,
+            intent=extracted.intent or None,
+            attendees=extracted.attendees,
+            topics_discussed=topics,
+            materials_shared=extracted.materials_shared,
+            samples_distributed=extracted.samples_distributed,
+            sentiment=sent,
+            outcomes=extracted.outcomes,
         )
         row = models.Interaction(**payload.model_dump())
         db.add(row)

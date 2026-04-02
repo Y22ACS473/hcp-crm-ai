@@ -40,9 +40,38 @@ This project implements a mini CRM focused on healthcare professionals (HCPs), w
 ## Run Instructions
 
 ### 1) Start PostgreSQL
-
 ```bash
-docker compose up -d
+## Run Instructions
+
+### 1) Start PostgreSQL (Local Setup)
+Make sure PostgreSQL is installed and running.
+Create database:
+CREATE DATABASE hcp_crm;
+
+### 2) Backend
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+### 3) Environment Variables
+Create .env file inside backend folder:
+
+GROQ_API_KEY=your_real_key
+GROQ_MODEL=llama-3.3-70b-versatile
+DATABASE_URL=postgresql+psycopg2://postgres:your_password@localhost:5432/hcp_crm
+
+### 4) Run Backend
+uvicorn app.main:app --reload --port 8000
+
+### 5) Frontend
+cd frontend
+npm install
+npm run dev
+
+Open http://localhost:5173
+
+
 ```
 
 ### 2) Backend

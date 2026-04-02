@@ -7,12 +7,18 @@ from pydantic import BaseModel, Field
 class InteractionBase(BaseModel):
     doctor_name: str
     interaction_at: datetime
-    interaction_type: str = Field(description="visit/call")
+    interaction_type: str = Field(description="visit/call/meeting")
     notes: str = ""
     products_discussed: str = ""
     follow_up_actions: str = ""
     topic: Optional[str] = None
     intent: Optional[str] = None
+    attendees: str = ""
+    topics_discussed: str = ""
+    materials_shared: str = ""
+    samples_distributed: str = ""
+    sentiment: str = "neutral"
+    outcomes: str = ""
 
 
 class InteractionCreate(InteractionBase):
@@ -28,6 +34,12 @@ class InteractionUpdate(BaseModel):
     follow_up_actions: Optional[str] = None
     topic: Optional[str] = None
     intent: Optional[str] = None
+    attendees: Optional[str] = None
+    topics_discussed: Optional[str] = None
+    materials_shared: Optional[str] = None
+    samples_distributed: Optional[str] = None
+    sentiment: Optional[str] = None
+    outcomes: Optional[str] = None
 
 
 class InteractionOut(InteractionBase):
@@ -45,3 +57,11 @@ class ChatInput(BaseModel):
 class ChatOutput(BaseModel):
     tool_used: str
     result: dict
+
+
+class TranscriptIn(BaseModel):
+    text: str
+
+
+class TranscriptOut(BaseModel):
+    summary: str
